@@ -3,7 +3,7 @@
   "displayName": "vscode-buildplatform-extension",
   "description": "",
   "version": "0.0.2",
-  "publisher": "Allens`s",
+  "publisher": "MingYueLiang",
   "repository": {},
   "engines": {
     "vscode": "^1.67.0"

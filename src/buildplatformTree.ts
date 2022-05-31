@@ -8,6 +8,7 @@ var terminalCount = 0;
 var winEnvRe = /%[a-zA-Z0-9_]+%/g;
 var unixEnvRe = /$[a-zA-Z0-9_]+/g;
 var envMap = new Map();
+var pythonRe = /python$/gi;
 
 export interface FolderType {
     name: string,
@@ -71,7 +72,7 @@ export class BuildPlatformProvider implements vscode.TreeDataProvider<BuildPlatf
 export function dealCommand(command: string) {
   var commandList = command.split(" ");
   commandList.forEach((command:string, index:number)=> {
-    if (command.search('python') !== -1) {
+    if (command.search(pythonRe) !== -1) {
       commandList[index] = 'py -3';
     } 
   });
@@ -150,19 +151,22 @@ function parserXmlFile(element: BuildPlatformItem) {
               var bashPath = vscode.workspace.getConfiguration().get('bashPath');
               var cmdPath = vscode.workspace.getConfiguration().get('cmdPath');
               var shellPath = null;
+              var commandSeparator = '';
               if (name.search('Linux') !== -1 || name.search('GCC') !== -1) {
                 shellPath = bashPath;
+                commandSeparator = ';';
                 // Get all environment variables that need to be set
                 // var envs = stepString.match(unixEnvRe);
               } else {
                 shellPath = cmdPath;
+                commandSeparator = '&&';
                 // var envs = stepString.match(winEnvRe);
                 // var newEnvs = getEnvBeSet(envs, name);
               }
               item.command = {
                 title: name,
                 command: 'plugin-buildplatform.openChild',
-                arguments: [name, shellPath, element.path, dealStepList.join(';')]
+                arguments: [name, shellPath, element.path, dealStepList.join(commandSeparator)]
               };
               childList[tarindex] = item;
             }
@@ -232,12 +236,11 @@ module.exports = function (context: vscode.ExtensionContext) {
         new StatusBarTermianl(terminalCount++, {
           terminalName: name,
           terminalShellpath: shellPath,
-          terminalCwd: syspath.dirname(path),
+          terminalCwd: path,
           terminalText: commands,
           terminalAutoInputText: true
         });
     })
-    
     );
   };
   
