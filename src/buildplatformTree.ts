@@ -140,7 +140,12 @@ function parserXmlFile(element: BuildPlatformItem) {
               var stepList = builtargets[tarindex].StepList[0].Step;
               // var setEnv:boolean = false;
               // var stepString = stepList.join(" ");
-              var dealStepList = stepList.map(dealCommand);
+              if (stepList){
+                var dealStepList = stepList.map(dealCommand);
+              } else {
+                continue;
+              }
+              
               // Use different shell according to the command.
               var bashPath = vscode.workspace.getConfiguration().get('bashPath');
               var cmdPath = vscode.workspace.getConfiguration().get('cmdPath');

@@ -5,7 +5,6 @@ import * as vscode from 'vscode';
 export function activate(context: vscode.ExtensionContext) {
 	require('./refreshWorkspace')(context);	
 	require('./buildplatformTree')(context);
-	require('./ParserFdFileLayout')(context);
 }
 
 // this method is called when your extension is deactivated

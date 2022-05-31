@@ -13,8 +13,7 @@
   ],
   "activationEvents": [
     "onView:Build-Command",
-    "onCommand:vscode-buildplatform-extension.refresh",
-    "onCommand:vscode-buildplatform-extension.viewlayout"
+    "onCommand:vscode-buildplatform-extension.refresh"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -23,10 +22,6 @@
         "command": "vscode-buildplatform-extension.refresh",
         "title": "Refresh",
         "icon": "./image/refresh.svg"
-      },
-      {
-        "command": "vscode-buildplatform-extension.viewlayout",
-        "title": "View layout"
       }
     ],
     "viewsContainers": {
@@ -58,12 +53,6 @@
           "command": "vscode-buildplatform-extension.refresh",
           "group": "navigation",
           "when": "view == Build-Command"
-        }
-      ],
-      "explorer/context": [
-        {
-          "command": "vscode-buildplatform-extension.viewlayout",
-          "group": "navigation"
         }
       ]
     },
