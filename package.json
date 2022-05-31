@@ -68,7 +68,7 @@
         "properties": {
           "bashPath": {
             "type": "string",
-            "default": "C:/Program Files/Git/git-bash.exe",
+            "default": "C:/Program Files/Git/bin/bash.exe",
             "description": "type your git bash path"
           },
           "cmdPath": {
