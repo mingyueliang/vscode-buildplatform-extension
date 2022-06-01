@@ -1,28 +1,48 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as xml2js from 'xml2js';
-import * as syspath from 'path';
+import { StatusBarTermianl } from './StatusBarTerminal';
+import { FolderType, getWorkSpaceFolders } from './commons';
 
 
-var terminalCount = 0;
-var winEnvRe = /%[a-zA-Z0-9_]+%/g;
-var unixEnvRe = /$[a-zA-Z0-9_]+/g;
-var envMap = new Map();
-var pythonRe = /python$/gi;
+let terminalCount = 0;
+let MAX_TERMINALS = null;
+let terminals: StatusBarTermianl[] = [];
+let terminalIndex: number; 
+let terminalMap = new  Map();
+let pythonRe = /python$/gi;
 
-export interface FolderType {
-    name: string,
-    path: string
-}
 
-export interface MyTerminalOptions extends vscode.TerminalOptions {
-	terminalName?: string
-  terminalShellpath?: string 
-	terminalCwd?: string 
-	terminalText?: string 
-	terminalAutoInputText?: boolean 
-	terminalAutoRun?: boolean
-}
+module.exports = function (context: vscode.ExtensionContext) {
+  const folderList = getWorkSpaceFolders();
+  if (folderList.length<=0) {
+    console.log('current workspace not open project');
+    vscode.window.showInformationMessage("Current workspace not open project");
+    return;
+  }
+  // Set the maximum number of terminals that can be opened at the same time
+  MAX_TERMINALS = folderList.length;
+
+  const buildplatformProvider = new BuildPlatformProvider(folderList);
+
+  // vscode.window.registerTreeDataProvider('Build-Command', buildplatformProvider);
+  vscode.window.createTreeView('Build-Command',{treeDataProvider:buildplatformProvider});
+
+  context.subscriptions.push(vscode.commands.registerCommand('plugin-buildplatform.openChild',async (name:string,shellPath:string,path:string,commands:string)=>{
+    if (terminalMap.has(path)) {
+      vscode.window.showInformationMessage('Current project does not support more than 1 terminal.');
+      context.subscriptions.push(vscode.window.onDidCloseTerminal(onDidCloseTerminal(terminalMap.get(path)._terminal, path)));
+    }
+    terminalMap.set(path, new StatusBarTermianl(terminalCount++, {
+        terminalName: name,
+        terminalShellpath: shellPath,
+        terminalCwd: path,
+        terminalText: commands,
+        terminalAutoInputText: true
+      }));
+  })
+  );
+};
 
 // create node
 export class BuildPlatformItem extends vscode.TreeItem {
@@ -79,34 +99,8 @@ export function dealCommand(command: string) {
   return commandList.join(" ");
 }
 
-/**
- * @description 
- * @summary
- */
- export function getWorkSpaceFolders(){
-	const folders: FolderType[] = [];
-	vscode?.workspace?.workspaceFolders?.forEach((folder:any) => {
-		folders.push({
-			name: folder.name,
-			path: folder.uri.path.substring(1)
-		});
-	});
-	return folders;
-}
 
-export function getEnvBeSet(envs:any, name:string){
-  envs = Array.from(new Set(envs));
-  envs.forEach((env:string, index:number) => {
-    if (env.search("%") !== -1) {
-      envs[index] = env.replace(/%/g, '');
-    } else if (env.search("$") !== -1) {
-      envs[index] = env.replace(/$/g, '');
-    }
-  });
-  return envs;
-}
-
-function parserXmlFile(element: BuildPlatformItem) {
+export function parserXmlFile(element: BuildPlatformItem) {
     // get xml file path
     var xmlFilePath = `${element.path}/repo/Manifest.xml`;
     // Parser xml file
@@ -155,13 +149,9 @@ function parserXmlFile(element: BuildPlatformItem) {
               if (name.search('Linux') !== -1 || name.search('GCC') !== -1) {
                 shellPath = bashPath;
                 commandSeparator = ';';
-                // Get all environment variables that need to be set
-                // var envs = stepString.match(unixEnvRe);
               } else {
                 shellPath = cmdPath;
                 commandSeparator = '&&';
-                // var envs = stepString.match(winEnvRe);
-                // var newEnvs = getEnvBeSet(envs, name);
               }
               item.command = {
                 title: name,
@@ -174,73 +164,18 @@ function parserXmlFile(element: BuildPlatformItem) {
         }
       });
       return childList;
-    
     }
-    
   }
 
 /**
- * @description terminal
- * @terminalName platform name
- * @terminalIndex terminal index
- * @terminalPath create terminal shell path
- * @return create terminal
+ * @description Close terminal
+ * @param terminal 
  */
- export class StatusBarTermianl {
-  private _terminal: vscode.Terminal | undefined;
-  public terminalName: string | undefined;
-  public terminalIndex: number | undefined;
-  public terminalPath: string | undefined;
-
-  constructor(terminalIndex: number, terminalOptions: MyTerminalOptions, terminalCreate:boolean = true){
-      this.terminalIndex = terminalIndex;
-      this.terminalName = terminalOptions.terminalName;
-      this.terminalPath = terminalOptions.terminalCwd;
-
-      if (terminalCreate) {
-          /* create ps terminal */
-          this._terminal = vscode.window.createTerminal({
-              name: this.terminalName,
-              shellPath: terminalOptions.terminalShellpath,
-              cwd: terminalOptions.terminalCwd
-          });
-
-          if (terminalOptions.terminalAutoInputText) {
-              if (terminalOptions.terminalText) {
-                  this._terminal.sendText(
-                      terminalOptions.terminalText,
-                      terminalOptions.terminalAutoRun
-                  );
-              }
-          }
-          this._terminal.show();
-      }
-  }
+function onDidCloseTerminal(terminal: vscode.Terminal, projectName:string): any {
+  // Close terminal
+  terminal.dispose();
+  var statusBarTerminal = terminalMap.get(projectName);
+  statusBarTerminal._item.dispose();
+  terminalMap.delete(projectName);
+  terminalCount--;
 }
-
-
-module.exports = function (context: vscode.ExtensionContext) {
-    const folderList = getWorkSpaceFolders();
-    if (folderList.length<=0) {
-      console.log('current workspace not open project');
-      vscode.window.showInformationMessage("Current workspace not open project");
-      return;
-    }
-
-    const buildplatformProvider = new BuildPlatformProvider(folderList);
-  
-    // vscode.window.registerTreeDataProvider('Build-Command', buildplatformProvider);
-    vscode.window.createTreeView('Build-Command',{treeDataProvider:buildplatformProvider});
-  
-    context.subscriptions.push(vscode.commands.registerCommand('plugin-buildplatform.openChild',async (name:string,shellPath:string,path:string,commands:string)=>{
-        new StatusBarTermianl(terminalCount++, {
-          terminalName: name,
-          terminalShellpath: shellPath,
-          terminalCwd: path,
-          terminalText: commands,
-          terminalAutoInputText: true
-        });
-    })
-    );
-  };
-  
