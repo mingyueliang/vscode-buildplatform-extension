@@ -6,11 +6,9 @@ import { FolderType, getWorkSpaceFolders } from './commons';
 
 
 let terminalCount = 0;
-let MAX_TERMINALS = null;
-let terminals: StatusBarTermianl[] = [];
-let terminalIndex: number; 
 let terminalMap = new  Map();
 let pythonRe = /python$/gi;
+let zip7zRe = /7z.exe$/gi;
 
 
 module.exports = function (context: vscode.ExtensionContext) {
@@ -20,8 +18,6 @@ module.exports = function (context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage("Current workspace not open project");
     return;
   }
-  // Set the maximum number of terminals that can be opened at the same time
-  MAX_TERMINALS = folderList.length;
 
   const buildplatformProvider = new BuildPlatformProvider(folderList);
 
@@ -31,6 +27,7 @@ module.exports = function (context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('plugin-buildplatform.openChild',async (name:string,shellPath:string,path:string,commands:string)=>{
     if (terminalMap.has(path)) {
       vscode.window.showInformationMessage('Current project does not support more than 1 terminal.');
+      // Close terminal
       context.subscriptions.push(vscode.window.onDidCloseTerminal(onDidCloseTerminal(terminalMap.get(path)._terminal, path)));
     }
     terminalMap.set(path, new StatusBarTermianl(terminalCount++, {
@@ -95,6 +92,9 @@ export function dealCommand(command: string) {
     if (command.search(pythonRe) !== -1) {
       commandList[index] = 'py -3';
     } 
+    if (command.search(zip7zRe) !== -1) {
+      commandList[index] = '7z';
+    }
   });
   return commandList.join(" ");
 }
