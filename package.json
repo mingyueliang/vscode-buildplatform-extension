@@ -2,11 +2,11 @@
   "name": "vscode-buildplatform-extension",
   "displayName": "vscode-buildplatform-extension",
   "description": "",
-  "version": "0.0.2",
+  "version": "0.0.7",
   "publisher": "MingYueLiang",
   "repository": {},
   "engines": {
-    "vscode": "^1.67.0"
+    "vscode": "^1.64.0"
   },
   "categories": [
     "Other"
@@ -22,6 +22,22 @@
         "command": "vscode-buildplatform-extension.refresh",
         "title": "Refresh",
         "icon": "./image/refresh.svg"
+      },
+      {
+        "command": "vscode-buildplatform-extension.run",
+        "title": "Run"
+      },
+      {
+        "command": "vscode-buildplatform-extension.edit",
+        "title": "Edit command",
+        "icon":{
+          "light": "./image/refresh.svg",
+          "dark": "./image/refresh.svg"
+        }
+      },
+      {
+        "command": "vscode-buildplatform-extension.parserXml",
+        "title": "Parser Xml"
       }
     ],
     "viewsContainers": {
@@ -39,12 +55,6 @@
           "id": "Build-Command",
           "name": "project"
         }
-      ],
-      "explorer": [
-        {
-          "id": "view-layout",
-          "name": "current fd"
-        }
       ]
     },
     "menus": {
@@ -53,6 +63,25 @@
           "command": "vscode-buildplatform-extension.refresh",
           "group": "navigation",
           "when": "view == Build-Command"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "vscode-buildplatform-extension.run",
+          "group": "inline",
+          "when": "view == Build-Command"
+        },
+        {
+          "command": "vscode-buildplatform-extension.edit",
+          "group": "group1",
+          "when": "view == Build-Command"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "vscode-buildplatform-extension.parserXml",
+          "group": "group1",
+          "when": ""
         }
       ]
     },
@@ -95,7 +124,7 @@
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "14.x",
-    "@types/vscode": "^1.67.0",
+    "@types/vscode": "^1.64.0",
     "@types/xml2js": "^0.4.11",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",

@@ -28,7 +28,8 @@ import { MyTerminalOptions } from './commons';
             this._terminal = vscode.window.createTerminal({
                 name: this.terminalName,
                 shellPath: terminalOptions.terminalShellpath,
-                cwd: terminalOptions.terminalCwd
+                cwd: terminalOptions.terminalCwd,
+                env: terminalOptions.env,
             });
   
             if (terminalOptions.terminalAutoInputText) {

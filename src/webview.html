@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<heaad>
+    <meta charset="utf-8">
+    <title>Build platform commands</title>
+</heaad>
+
+<body>
+    <div id="box">
+    <p id="command" contenteditable="true">command steps: </p>
+    </div>
+    
+    <script>
+        window.addEventListener('message', function(e){
+            var box = document.getElementById('command')
+            var ol = document.createElement('ol')
+            box.appendChild(ol)
+            e.data.forEach(element => {
+                var li = document.createElement('li')
+                ol.appendChild(li)
+                setInnerText(li, element)
+            });
+        })
+        
+        function setInnerText(element, content) {
+            if (typeof(element.innerText === 'string')) {
+                element.innerText=content
+            }else {
+                element.innerText=content
+            }
+        }
+    </script>
+</body>
+</html>
