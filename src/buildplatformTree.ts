@@ -29,134 +29,7 @@ let ipcleanRe = /ipclean.py$/gi;
 
   // vscode.window.registerTreeDataProvider('Build-Command', buildplatformProvider);
   vscode.window.createTreeView('Build-Command',{treeDataProvider:buildplatformProvider});
-
-  context.subscriptions.push(vscode.commands.registerCommand('vscode-buildplatform-extension.run', async (Item:BuildPlatformItem)=> {
-    // var [name, path, commands, setCheckoutDir] = Item.command?.arguments;
-
-    var shellPath = Item.command?.arguments?.pop();
-    var setCheckoutDir = Item.command?.arguments?.pop();
-    var commands = Item.command?.arguments?.pop();
-    var path = Item.command?.arguments?.pop();
-    var name = Item.command?.arguments?.pop();
-    if (terminalMap.has(getPathHack(path))) {
-      vscode.window.showInformationMessage('Current project does not support more than 1 terminal.');
-      // Close terminal
-      // closeTerminal(terminalMap.get(getPathHack(path))._terminal);
-      onDidCloseTerminal(terminalMap.get(getPathHack(path))._terminal);
-
-    }
-    var envs= {};
-    if (setCheckoutDir) {
-      envs = {checkoutdir:getPathHack(path), checkoutDir:getPathHack(path)};
-      // if (isLinuxOS()) {
-      //   commands = `export checkoutDir=${getPathHack(path)};export checkoutdir=${getPathHack(path)};`+commands;
-      // } else {
-      //   commands = `set checkoutDir=${getPathHack(path)}&&set: checkoutdir=${getPathHack(path)}&&`+commands;
-      // }
-    }
-    terminalMap.set(getPathHack(path), new StatusBarTermianl(terminalCount++, {
-        terminalName: name,
-        terminalShellpath: shellPath,
-        terminalCwd: getPathHack(path),
-        terminalText: commands,
-        env: envs,
-        terminalAutoInputText: true
-      }));
-    terminals.push(terminalMap.get(getPathHack(path)));
-    // This happens when user closed terminal.
-    context.subscriptions.push(vscode.window.onDidCloseTerminal(onDidCloseTerminal));
-  }));
-
-  // context.subscriptions.push(vscode.commands.registerCommand('vscode-buildplatform-extension.edit',async (Item:BuildPlatformItem)=>{
-  //   vscode.window.showInformationMessage('Edit command');
-  //   var column = vscode.window.activeTextEditor?vscode.window.activeTextEditor.viewColumn:undefined;
-  //   var shellPath = Item.command?.arguments?.pop();
-  //   var setCheckoutDir = Item.command?.arguments?.pop();
-  //   var commands = Item.command?.arguments?.pop();
-  //   var path = Item.command?.arguments?.pop();
-  //   var name = Item.command?.arguments?.pop();
-
-  //   // If we already have a panel, show it.
-  //   if (webviewPanel.get(name)) {
-  //     webviewPanel.get(name).reveal(column);
-  //     // return;
-  //   } else {
-  //     // Create webview panel.
-  //     const panel = vscode.window.createWebviewPanel(
-  //       'commands',
-  //       name,
-  //       vscode.ViewColumn.One,
-  //       {enableScripts: true, retainContextWhenHidden:true}
-  //     );
-  //     webviewPanel.set(name, panel);
-
-      // Get webview html
-  //     var templatePath = 'src/webview.html';
-  //     panel.webview.html = getWebviewContent(context, templatePath);
-      
-  //     // Post messsage(data) to webview
-  //     var sep = ';';
-  //     if (isWinOS()){ 
-  //       sep = '&&';
-  //     }
-  //     var cmdList = commands.split(sep);
-  //     panel.webview.postMessage(cmdList);
-
-  //     // Listen for when the panel disposed
-  //     // This happens when the user closes the panel or when the panel is closed programmatically
-  //     panel.onDidDispose(() => dispose(panel, name), null, []);
-
-  //   }
-  // }));
-
-  context.subscriptions.push(vscode.commands.registerCommand('plugin-buildplatform.openChild',async (name:string,path:string,commands:string,setCheckoutDir:boolean)=>{
-    var column = vscode.window.activeTextEditor?vscode.window.activeTextEditor.viewColumn:undefined;
-    // If we already have a panel, show it.
-    if (webviewPanel.get(name)) {
-      webviewPanel.get(name).reveal(column);
-    } else {
-      // Create webview panel.
-      const panel = vscode.window.createWebviewPanel(
-        'commands',
-        name,
-        vscode.ViewColumn.One,
-        {enableScripts: true, retainContextWhenHidden:true}
-      );
-      webviewPanel.set(name, panel);
-
-      // Get webview html
-      var templatePath = 'src/webview.html';
-      panel.webview.html = getWebviewContent(context, templatePath);
-      
-      // Post messsage(data) to webview
-      var sep = ';';
-      if (isWinOS()){ 
-        sep = '&&';
-      }
-      var cmdList = commands.split(sep);
-      panel.webview.postMessage(cmdList);
-
-      // Listen for when the panel disposed
-      // This happens when the user closes the panel or when the panel is closed programmatically
-      panel.onDidDispose(() => dispose(panel, name), null, []);
-
-    }
-  })
-  );
 };
-
-/**
- * @description read template html file
- * @param context vscode Extension context
- * @param templatePath html file path
- * @param commands 
- * @returns html
- */
-export function getWebviewContent(context: vscode.ExtensionContext, templatePath: string, commands?: Array<string>){
-  const resourcePath = syspath.join(context.extensionPath, templatePath);
-  let html = fs.readFileSync(resourcePath, 'utf-8');
-  return html;
-}
 
 // create node
 export class BuildPlatformItem extends vscode.TreeItem {
@@ -320,7 +193,7 @@ export function parserXmlFile(element: BuildPlatformItem) {
               }
 
               var item = new BuildPlatformItem(
-                `Build: ${name}`,
+                name,
                 vscode.TreeItemCollapsibleState.None,
                 '',
                 description,
@@ -335,6 +208,7 @@ export function parserXmlFile(element: BuildPlatformItem) {
                 command: 'plugin-buildplatform.openChild',
                 arguments: [name, element.path, dealStepList.join(commandSeparator), setCheckoutDir, shellPath]
               };
+              item.args = [{name:name, path: element.path, commands: dealStepList.join(commandSeparator), setCheckoutDir: setCheckoutDir, shellPath:shellPath}];
               childList[tarindex] = item;
             }
           }
@@ -345,41 +219,4 @@ export function parserXmlFile(element: BuildPlatformItem) {
       }
       return childList;
     }
-  }
-
-/**
- * @description Close terminal
- * @param terminal 
- */
-function closeTerminal(terminal: vscode.Terminal): any {
-  // Close terminal
-  onDidCloseTerminal(terminal);
-}
-
-/**
- * @description when user close terminal
- * @param terminal 
- */
-function onDidCloseTerminal(terminal: vscode.Terminal) {
-  terminals.forEach((statusBarTerminal, index) => {
-    if (statusBarTerminal.hasTerminal(terminal)) {
-      terminalIndex = index;
-    }
-    });
-    terminals[terminalIndex]?.dispose();
-    terminals.splice(terminalIndex, 1);
-    terminals.forEach((statusBarTerminal, i) => {
-      terminals[i].setTerminalIndex(i);
-  });
-  terminalCount--;
-}
-
-/**
- * @description Close webview panel
- * @param panel webview panel
- * @param name webview name
- */
-function dispose(panel: vscode.WebviewPanel, name: string){
-  panel.dispose();
-  webviewPanel.delete(name);
 }

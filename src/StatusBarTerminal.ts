@@ -17,8 +17,8 @@ import { MyTerminalOptions } from './commons';
   
     constructor(terminalIndex: number, terminalOptions: MyTerminalOptions, terminalCreate:boolean = true){
         this.terminalIndex = terminalIndex;
-        this.terminalName = terminalOptions.terminalName;
-        this.terminalPath = terminalOptions.terminalCwd;
+        this.terminalName = terminalOptions?.terminalName;
+        this.terminalPath = terminalOptions?.terminalCwd;
         this._item = vscode.window.createStatusBarItem();
         this.setTerminalIndex(terminalIndex);
         this._item.show();
@@ -27,13 +27,13 @@ import { MyTerminalOptions } from './commons';
             /* create terminal */
             this._terminal = vscode.window.createTerminal({
                 name: this.terminalName,
-                shellPath: terminalOptions.terminalShellpath,
-                cwd: terminalOptions.terminalCwd,
-                env: terminalOptions.env,
+                shellPath: terminalOptions?.terminalShellpath,
+                cwd: terminalOptions?.terminalCwd,
+                env: terminalOptions?.env,
             });
   
             if (terminalOptions.terminalAutoInputText) {
-                if (terminalOptions.terminalText) {
+                if (terminalOptions?.terminalText) {
                     this._terminal.sendText(
                         terminalOptions.terminalText,
                         terminalOptions.terminalAutoRun

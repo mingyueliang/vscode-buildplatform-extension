@@ -3,11 +3,10 @@
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
-	require('./refreshWorkspace')(context);	
-	// context.subscriptions.push(vscode.commands.registerCommand('vscode-buildplatform-extension.parserXml', async (uri)=> {
-	// 	require('./buildplatformTree')(context,uri.path);
-	// }));
 	require('./buildplatformTree')(context);
+	require('./refreshWorkspace')(context);	
+	require('./runTerminal')(context);
+	require('./webview')(context);
 }
 
 // this method is called when your extension is deactivated

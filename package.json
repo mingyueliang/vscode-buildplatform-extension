@@ -2,7 +2,7 @@
   "name": "vscode-buildplatform-extension",
   "displayName": "vscode-buildplatform-extension",
   "description": "",
-  "version": "0.0.7",
+  "version": "0.0.1",
   "publisher": "MingYueLiang",
   "repository": {},
   "engines": {
@@ -21,23 +21,18 @@
       {
         "command": "vscode-buildplatform-extension.refresh",
         "title": "Refresh",
-        "icon": "./image/refresh.svg"
-      },
-      {
-        "command": "vscode-buildplatform-extension.run",
-        "title": "Run"
-      },
-      {
-        "command": "vscode-buildplatform-extension.edit",
-        "title": "Edit command",
         "icon":{
-          "light": "./image/refresh.svg",
-          "dark": "./image/refresh.svg"
+          "light": "./image/refresh1.svg",
+          "dark": "./image/refresh1.svg"
         }
       },
       {
-        "command": "vscode-buildplatform-extension.parserXml",
-        "title": "Parser Xml"
+        "command": "vscode-buildplatform-extension.run",
+        "title": "Run in terminal",
+        "icon":{
+          "light": "./image/run.svg",
+          "dark": "./image/run.svg"
+        }
       }
     ],
     "viewsContainers": {
@@ -70,18 +65,6 @@
           "command": "vscode-buildplatform-extension.run",
           "group": "inline",
           "when": "view == Build-Command"
-        },
-        {
-          "command": "vscode-buildplatform-extension.edit",
-          "group": "group1",
-          "when": "view == Build-Command"
-        }
-      ],
-      "explorer/context": [
-        {
-          "command": "vscode-buildplatform-extension.parserXml",
-          "group": "group1",
-          "when": ""
         }
       ]
     },
