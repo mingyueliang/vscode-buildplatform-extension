@@ -6,18 +6,12 @@ import { StatusBarTermianl } from './StatusBarTerminal';
 import { FolderType, getWorkSpaceFolders, isMacOS, isWinOS, isLinuxOS, getPathHack } from './commons';
 
 
-let terminalCount = 0;
-let terminals: StatusBarTermianl[] = [];
-let terminalIndex: number;
-let terminalMap = new  Map();
-let webviewPanel = new Map();
 let pythonRe = /python$|python.exe$/gi;
 let zip7zRe = /7z.exe$/gi;
 let checkoutDirRe = /\$checkoutDir\/|\$checkoutDir|%checkoutDir%\\|%checkoutDir%/gi;
 let ipcleanRe = /ipclean.py$/gi;
 
-
- module.exports = function (context: vscode.ExtensionContext, uri?: string) {
+module.exports = function (context: vscode.ExtensionContext, uri?: string) {
   const folderList = getWorkSpaceFolders();
   if (folderList.length<=0) {
     console.log('current workspace not open project');
@@ -56,7 +50,14 @@ export class BuildPlatformItem extends vscode.TreeItem {
  * @description Provider data for view.
  */
 export class BuildPlatformProvider implements vscode.TreeDataProvider<BuildPlatformItem> {
+    // refresh child node
+    private _onDidChangeTreeData: vscode.EventEmitter<BuildPlatformItem | undefined | void> = new vscode.EventEmitter<BuildPlatformItem | undefined | void>();
+    readonly onDidChangeTreeData: vscode.Event<BuildPlatformItem | undefined | void> = this._onDidChangeTreeData.event;
     constructor(private folderPathList?: FolderType[], private xmlFilePath?: string|undefined){}
+
+    refresh(): void {
+      this._onDidChangeTreeData.fire();
+    }
 
     getTreeItem(element: BuildPlatformItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element;
