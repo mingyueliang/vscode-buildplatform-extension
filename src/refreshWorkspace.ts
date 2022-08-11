@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { provider } from './buildplatformTree';
 
 module.exports = function (context: vscode.ExtensionContext) {
     let reloadExtensionCommand = vscode.commands.registerCommand('vscode-buildplatform-extension.refresh', () => {
@@ -9,4 +8,3 @@ module.exports = function (context: vscode.ExtensionContext) {
       context.subscriptions.push(reloadExtensionCommand);
   
   };
-  

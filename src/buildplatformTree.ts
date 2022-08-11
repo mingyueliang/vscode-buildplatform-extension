@@ -8,7 +8,7 @@ import { FolderType, getWorkSpaceFolders, isMacOS, isWinOS, isLinuxOS, getPathHa
 
 let pythonRe = /python$|python.exe$/gi;
 let zip7zRe = /7z.exe$/gi;
-let checkoutDirRe = /\$checkoutDir\/|\$checkoutDir|%checkoutDir%\\|%checkoutDir%/gi;
+let checkoutDirRe = /\$checkoutDir|%checkoutDir%/gi;
 let ipcleanRe = /ipclean.py$/gi;
 
 module.exports = function (context: vscode.ExtensionContext, uri?: string) {
@@ -79,27 +79,6 @@ export class BuildPlatformProvider implements vscode.TreeDataProvider<BuildPlatf
                     ''
                   );
             });
-            // const project = [];
-            // var folderPath = '';
-            // var folderName = '';
-
-            // this.folderPathList?.forEach((folder) => {
-            //   if (this.xmlFilePath?.search(folder.name) !== -1) {
-            //     folderPath = folder.path;
-            //     folderName = folder.name;
-            //   }
-            // });
-            // project.push(new BuildPlatformItem(
-            //   folderName,
-            //   vscode.TreeItemCollapsibleState.Collapsed,
-            //   folderName,
-            //   '',
-            //   folderPath,
-            //   [],
-            //   '',
-            //   this.xmlFilePath
-            // ));
-            // return project;
             return folderNode;
         }
     }
@@ -128,6 +107,10 @@ export function dealCommand(command: string) {
       if (command.search(ipcleanRe) !== -1) {
         commandList[index] = 'ipclean';
         commandList = commandList.slice(1,undefined);
+      }
+
+      if ((command.search('Intel') === -1 || command.search(checkoutDirRe) === -1)&& command.search(/PlatformBIOSBuild.py|PlatformFSPBuild.py/g) !== -1){
+        commandList[index] = syspath.join('Intel', command);
       }
     });
     return commandList.join(" ");

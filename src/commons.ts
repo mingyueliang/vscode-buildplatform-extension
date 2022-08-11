@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as os from 'os';
+import * as fs from 'fs';
 
 export interface FolderType {
     name: string,
@@ -30,6 +31,37 @@ export interface MyTerminalOptions extends vscode.TerminalOptions {
 	});
 	return folders;
 }
+
+/**
+ * @description serch file by dir
+ * @param path 
+ * @param it 
+ * @returns 
+ */
+export function walk(path:any, it:any):any {
+    var dirList = fs.readdirSync(path);
+    console.log(dirList.length);
+    for (var i = 0; i < dirList.length; i++) {
+        var item = dirList[i];
+        if (fs.statSync(path + '/' + item).isDirectory()) {
+            if (item === it) {
+                return path + '/' + item;
+            } else {
+                var j = walk(path + '/' + item, it);
+                if (j) {
+                    return j;
+                } else {
+                    continue;
+                }
+            }
+        } else if (fs.statSync(path + '/' + item).isFile()) {
+            if (item === it) {
+                return path + '/' + item;
+            }
+        }
+    }
+}
+
 
 /**
  *@description Get the correct address and be compatible with the problems on the window.

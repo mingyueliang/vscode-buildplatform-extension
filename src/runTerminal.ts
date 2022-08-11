@@ -1,9 +1,6 @@
 import * as vscode from 'vscode';
 import { StatusBarTermianl } from './StatusBarTerminal';
 import { getPathHack } from './commons';
-import { BuildPlatformItem } from './buildplatformTree';
-import { stringify } from 'querystring';
-import { type } from 'os';
 
 let terminalCount = 0;
 let terminals: StatusBarTermianl[] = [];

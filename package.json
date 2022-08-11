@@ -4,7 +4,9 @@
   "description": "",
   "version": "0.0.1",
   "publisher": "MingYueLiang",
-  "repository": {},
+  "repository": {
+    "url": "https://github.com/mingyueliang/vscode-buildplatform-extension.git"
+  },
   "engines": {
     "vscode": "^1.64.0"
   },
