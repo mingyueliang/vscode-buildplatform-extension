@@ -109,9 +109,6 @@ export function dealCommand(command: string) {
         commandList = commandList.slice(1,undefined);
       }
 
-      if ((command.search('Intel') === -1 || command.search(checkoutDirRe) === -1)&& command.search(/PlatformBIOSBuild.py|PlatformFSPBuild.py/g) !== -1){
-        commandList[index] = syspath.join('Intel', command);
-      }
     });
     return commandList.join(" ");
   
@@ -141,6 +138,12 @@ export function parserXmlFile(element: BuildPlatformItem) {
         if (err) {
           console.error('parser error......');
         } else {
+          // Get C/S
+          var bcs = '';
+          var cs = result.Manifest.ProjectInfo[0].Description[0];
+          if (cs.search(/Server/gi) !== -1) {
+            bcs = 'server';
+          };
           var buildTargetList = result.Manifest.BuildTargetList;
           for (let index = 0; index < buildTargetList.length; index++) {
             var builtargets = buildTargetList[index].BuildTarget;
@@ -192,7 +195,7 @@ export function parserXmlFile(element: BuildPlatformItem) {
                 command: 'plugin-buildplatform.openChild',
                 arguments: [name, element.path, dealStepList.join(commandSeparator), setCheckoutDir, shellPath]
               };
-              item.args = [{name:name, path: element.path, commands: dealStepList.join(commandSeparator), setCheckoutDir: setCheckoutDir, shellPath:shellPath}];
+              item.args = [{name:name, path: element.path, commands: dealStepList.join(commandSeparator), setCheckoutDir: setCheckoutDir, shellPath:shellPath, bcs:bcs}];
               childList[tarindex] = item;
             }
           }

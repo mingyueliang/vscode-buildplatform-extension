@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as syspath from 'path';
 import { StatusBarTermianl } from './StatusBarTerminal';
 import { getPathHack } from './commons';
 
@@ -16,6 +17,11 @@ module.exports = function(context: vscode.ExtensionContext){
         var commands = args.commands;
         var setCheckoutDir = args.setCheckoutDir;
         var shellPath = args.shellPath;
+        var bcs = args.bcs;
+        var terminalCwd = getPathHack(path);
+        if (bcs) {
+          var terminalCwd = syspath.join(getPathHack(path), 'Intel');
+        }
         if (terminalMap.has(getPathHack(path))) {
           // Close terminal
           onDidCloseTerminal(terminalMap.get(getPathHack(path))._terminal);
@@ -33,7 +39,7 @@ module.exports = function(context: vscode.ExtensionContext){
         terminalMap.set(getPathHack(path), new StatusBarTermianl(terminalCount++, {
             terminalName: name,
             terminalShellpath: shellPath,
-            terminalCwd: getPathHack(path),
+            terminalCwd: terminalCwd,
             terminalText: commands,
             env: envs,
             terminalAutoInputText: true

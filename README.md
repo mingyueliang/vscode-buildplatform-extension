@@ -1,5 +1,8 @@
 # vscode-buildplatform-extension
 
+## Vscode version
+    vscode engines: 1.64.0 version above.
+
 ## Run extension on location
 
 * github link: <https://github.com/mingyueliang/vscode-buildplatform-extension.git>
