@@ -10,12 +10,14 @@ let pythonRe = /python$|python.exe$/gi;
 let zip7zRe = /7z.exe$/gi;
 let checkoutDirRe = /\$checkoutDir|%checkoutDir%/gi;
 let ipcleanRe = /ipclean.py$/gi;
+let buildtypeRe = /\$buildtype|%buildtype%/gi;
+let varsRe = /\$.+|%.+%/gi;
 
 module.exports = function (context: vscode.ExtensionContext, uri?: string) {
   const folderList = getWorkSpaceFolders();
   if (folderList.length<=0) {
-    console.log('current workspace not open project');
-    vscode.window.showInformationMessage("Current workspace not open project");
+    console.log('There are no projects open in the current workspace');
+    vscode.window.showInformationMessage("There are no projects open in the current workspace");
     return;
   }
 
@@ -116,6 +118,39 @@ export function dealCommand(command: string) {
 }
 
 /**
+ * @description Deal vars
+ * @param command all command
+ */
+ export function dealVars(commands: string) {
+  var commandList = new Array();
+  var oldCommands = commands.split(" ");
+  var index = 0;
+  while (index < oldCommands.length) {
+    if (oldCommands[index].search(varsRe) !== -1) {
+      if (oldCommands[index].search(checkoutDirRe) !== -1 || oldCommands[index].search(buildtypeRe) !== -1) {
+        commandList.push(oldCommands[index]);
+        index ++;
+      } else {
+        if (oldCommands[index-1].search('-') !== -1) {
+          commandList.pop();
+          index ++;
+          continue;
+        }
+        index ++;
+      }
+    } else {
+      if (oldCommands[index].search(/\|{2}/g) !== -1) {
+        break;
+      }
+      commandList.push(oldCommands[index]);
+      index ++;
+    }
+  }
+  return commandList.join(" ");
+}
+
+
+/**
  * @description parser xml file 
  * @param element 
  * @returns 
@@ -126,10 +161,9 @@ export function parserXmlFile(element: BuildPlatformItem) {
     // Parser xml file
     var data = '';
     try {
-    // data = fs.readFileSync(getPathHack(`${element.xmlFilePath}`), 'utf-8');
     data = fs.readFileSync(xmlFilePath, 'utf-8');
     } catch (error) {
-      vscode.window.showInformationMessage(`Not xml file in ${element.path} project`);
+      vscode.window.showErrorMessage(`Not Manifest.xml file in ${element.path}/repo directory`);
       return;
     }
     if (data) {
@@ -152,6 +186,7 @@ export function parserXmlFile(element: BuildPlatformItem) {
               var stepList = builtargets[tarindex].StepList[0].Step;
               if (stepList){
                 var dealStepList = stepList.map(dealCommand);
+                dealStepList = dealStepList.map(dealVars);
               } else {
                 continue;
               }

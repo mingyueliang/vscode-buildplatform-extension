@@ -66,7 +66,7 @@ export function getWebviewContent(context: vscode.ExtensionContext, templatePath
  * @param panel webview panel
  * @param name webview name
  */
- function dispose(panel: vscode.WebviewPanel, name: string){
+function dispose(panel: vscode.WebviewPanel, name: string){
     panel.dispose();
     webviewPanel.delete(name);
-  }
+}

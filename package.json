@@ -2,7 +2,7 @@
   "name": "vscode-buildplatform-extension",
   "displayName": "vscode-buildplatform-extension",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "MingYueLiang",
   "repository": {
     "url": "https://github.com/mingyueliang/vscode-buildplatform-extension.git"
